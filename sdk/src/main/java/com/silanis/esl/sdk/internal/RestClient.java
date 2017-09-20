@@ -15,6 +15,7 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.*;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
@@ -42,6 +43,7 @@ import java.security.cert.X509Certificate;
 import java.util.Collection;
 
 import static com.silanis.esl.sdk.internal.HttpUtil.percentDecode;
+import static org.apache.http.conn.ssl.SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
 
 public class RestClient {
 
@@ -250,7 +252,9 @@ public class RestClient {
         //Our client library should implicitly trust our eSignLive server. This also allows testing against
         //server with Self-signed certificates.
         try {
-            SSLContext sslContext = SSLContext.getInstance("SSL");
+            SSLContext sslContext = SSLContexts.custom()
+                    .useTLS()
+                    .build();
             sslContext.init(null,
                     new TrustManager[]{new X509TrustManager() {
                         public X509Certificate[] getAcceptedIssuers() {
@@ -265,7 +269,7 @@ public class RestClient {
                                 X509Certificate[] certs, String authType) {
                         }
                     }}, new SecureRandom());
-            return new SSLConnectionSocketFactory(sslContext, SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            return new SSLConnectionSocketFactory(sslContext, ALLOW_ALL_HOSTNAME_VERIFIER);
         } catch (KeyManagementException e) {
             throw new HttpException("Problem configuring SSL Socket factory", e);
         } catch (NoSuchAlgorithmException e) {

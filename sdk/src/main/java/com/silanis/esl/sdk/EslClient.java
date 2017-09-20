@@ -107,7 +107,7 @@ public class EslClient {
         Asserts.notNullOrEmpty(webpageURL, "webpageURL");
         setBaseURL(baseURL);
         this.webpageURL = webpageURL;
-        RestClient client = new RestClient(apiKey);
+        RestClient client = new RestClient(apiKey, allowAllSSLCertificates);
         init(client);
     }
 
